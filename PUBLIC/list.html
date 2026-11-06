@@ -1,0 +1,95 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Students</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>STUDENT RECORDS</h1>
+    <p>View all registered students</p>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a class="active" href="list.html">List Students</a>
+    <a href="listOne.html">Find Student</a>
+    <a href="insert.html">Insert Student</a>
+    <a href="update.html">Update Student</a>
+    <a href="delete.html">Delete Student</a>
+</nav>
+
+<main class="container">
+    <h2>All Students</h2>
+    <div class="list-student-image">
+    <img
+        src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=500&q=80"
+        alt="College students studying together"
+    >
+</div>
+    <div class="actions">
+        <button onclick="loadStudents()">Refresh Records</button>
+        <button class="btn-yellow" onclick="location.href='index.html'">Home Page</button>
+    </div>
+
+    <p id="message" class="message" role="status"></p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Number</th>
+                    <th>Student Name</th>
+                    <th>Total Marks</th>
+                </tr>
+            </thead>
+            <tbody id="studentRows"></tbody>
+        </table>
+    </div>
+</main>
+
+<footer>Student Management System | BTech Mini Project</footer>
+
+<script>
+async function loadStudents() {
+    const rows = document.getElementById("studentRows");
+    const message = document.getElementById("message");
+    rows.replaceChildren();
+    message.textContent = "Loading records...";
+
+    try {
+        const response = await fetch("/students");
+        const students = await response.json();
+        if (!response.ok) throw new Error(students.error || "Unable to load records.");
+
+        if (students.length === 0) {
+            message.textContent = "No student records found.";
+            return;
+        }
+
+        students.forEach(student => {
+            const tr = document.createElement("tr");
+
+            [student.sno, student.name, student.total].forEach(value => {
+                const td = document.createElement("td");
+                td.textContent = value;
+                tr.appendChild(td);
+            });
+
+            rows.appendChild(tr);
+        });
+
+        message.textContent = "Total students: " + students.length;
+    } catch (error) {
+        message.textContent = error.message;
+    }
+}
+
+loadStudents();
+</script>
+</body>
+</html>
+```

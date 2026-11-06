@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Student</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <h1>Student Management System</h1>
+    </header>
+
+    <main class="delete-container">
+
+      
+<div class="delete-picture">
+    <img
+        src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=600&q=80"
+        alt="Student books and records for delete student page">
+</div>
+
+
+        <div class="delete-form">
+            <h2>Delete Student</h2>
+            <p>Remove a student record from the database.</p>
+
+            <form id="deleteForm">
+                <label for="sno">Student Number</label>
+                <input
+                    type="number"
+                    id="sno"
+                    name="sno"
+                    placeholder="Enter student number"
+                    required>
+
+                <button type="submit" class="delete-btn">
+                    Delete Student
+                </button>
+            </form>
+
+            <div class="page-buttons">
+                <button type="button"
+                    onclick="location.href='index.html'">
+                    Home Page
+                </button>
+
+                <button type="button"
+                    onclick="location.reload()">
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.getElementById("deleteForm")
+            .addEventListener("submit", async function(event) {
+                event.preventDefault();
+
+                const sno = document.getElementById("sno").value;
+
+                if (!confirm("Are you sure you want to delete this student?")) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        `/students/${encodeURIComponent(sno)}`,
+                        { method: "DELETE" }
+                    );
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert("Student deleted successfully!");
+                        window.location.href = "index.html";
+                    } else {
+                        alert(result.message || "Unable to delete student.");
+                    }
+                } catch (error) {
+                    alert("Server error. Please check whether your app.js is running.");
+                }
+            });
+    </script>
+
+</body>
+</html>

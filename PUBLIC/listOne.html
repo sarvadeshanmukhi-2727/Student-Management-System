@@ -1,0 +1,120 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Student</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>FIND A STUDENT</h1>
+    <p>Quickly find an individual student record</p>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="list.html">List Students</a>
+    <a class="active" href="listOne.html">Find Student</a>
+    <a href="insert.html">Insert Student</a>
+    <a href="update.html">Update Student</a>
+    <a href="delete.html">Delete Student</a>
+</nav>
+
+<main class="container">
+    <h2>Search Student Details</h2>
+    <img class="page-image"
+         src="https://images.unsplash.com/photo-1434626881859-194d67b2b86f?auto=format&fit=crop&w=800&q=85"
+         alt="Academic papers and documents">
+
+    <section class="panel">
+        <label for="studentSelect">Select Student</label>
+        <select id="studentSelect">
+            <option value="">Loading students...</option>
+        </select>
+
+        <div class="actions">
+            <button onclick="findStudent()">View Details</button>
+            <button class="btn-outline" onclick="loadOptions()">Refresh</button>
+            <button class="btn-yellow" onclick="location.href='index.html'">Home Page</button>
+        </div>
+
+        <p class="message" id="message" role="status"></p>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student Number</th>
+                        <th>Student Name</th>
+                        <th>Total Marks</th>
+                    </tr>
+                </thead>
+                <tbody id="studentRows"></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer>Student Management System | BTech Mini Project</footer>
+
+<script>
+async function loadOptions() {
+    const select = document.getElementById("studentSelect");
+    select.replaceChildren(new Option("Select a student", ""));
+    document.getElementById("studentRows").replaceChildren();
+    document.getElementById("message").textContent = "Loading students...";
+
+    try {
+        const response = await fetch("/students");
+        const students = await response.json();
+        if (!response.ok) throw new Error("Unable to load students.");
+
+        students.forEach(student => {
+            select.add(new Option(
+                `${student.name} (No. ${student.sno})`,
+                student.sno
+            ));
+        });
+
+        document.getElementById("message").textContent =
+            students.length ? "Choose a student from the dropdown." : "No students found.";
+    } catch (error) {
+        document.getElementById("message").textContent = error.message;
+    }
+}
+
+async function findStudent() {
+    const sno = document.getElementById("studentSelect").value;
+    const rows = document.getElementById("studentRows");
+    const message = document.getElementById("message");
+    rows.replaceChildren();
+
+    if (!sno) {
+        message.textContent = "Please select a student.";
+        return;
+    }
+
+    try {
+        const response = await fetch("/students/" + encodeURIComponent(sno));
+        const student = await response.json();
+        if (!response.ok) throw new Error(student.error || "Student not found.");
+
+        const tr = document.createElement("tr");
+        [student.sno, student.name, student.total].forEach(value => {
+            const td = document.createElement("td");
+            td.textContent = value;
+            tr.appendChild(td);
+        });
+        rows.appendChild(tr);
+        message.textContent = "Student record found.";
+    } catch (error) {
+        message.textContent = error.message;
+    }
+}
+
+loadOptions();
+</script>
+</body>
+</html>

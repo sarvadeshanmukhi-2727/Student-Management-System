@@ -1,0 +1,143 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Student</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>UPDATE STUDENT</h1>
+    <p>Keep student information accurate and up to date</p>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="list.html">List Students</a>
+    <a href="listOne.html">Find Student</a>
+    <a href="insert.html">Insert Student</a>
+    <a class="active" href="update.html">Update Student</a>
+    <a href="delete.html">Delete Student</a>
+</nav>
+
+<main class="container">
+    <h2>Edit Student Details</h2>
+    <img class="page-image"
+         src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=85"
+         alt="Working with student information on a computer">
+
+    <form id="updateForm">
+        <label for="studentSelect">Select Student</label>
+        <select id="studentSelect" required>
+            <option value="">Loading students...</option>
+        </select>
+
+        <label for="sno">Student Number</label>
+        <input id="sno" type="number" disabled>
+
+        <label for="name">Student Name</label>
+        <input id="name" type="text" maxlength="100" required>
+
+        <label for="total">Total Marks</label>
+        <input id="total" type="number" min="0" max="99999.99" step="0.01" required>
+
+        <div class="actions">
+            <button type="submit">Save Changes</button>
+            <button type="button" class="btn-outline" onclick="loadStudents()">Refresh</button>
+            <button type="button" class="btn-yellow" onclick="location.href='index.html'">Home Page</button>
+        </div>
+        <p class="message" id="message" role="status"></p>
+    </form>
+</main>
+
+<footer>Student Management System | BTech Mini Project</footer>
+
+<script>
+const select = document.getElementById("studentSelect");
+const form = document.getElementById("updateForm");
+const message = document.getElementById("message");
+
+async function loadStudents() {
+    select.replaceChildren(new Option("Select a student", ""));
+    form.reset();
+    document.getElementById("sno").value = "";
+    message.textContent = "Loading students...";
+
+    try {
+        const response = await fetch("/students");
+        const students = await response.json();
+        if (!response.ok) throw new Error("Unable to load students.");
+
+        students.forEach(student => {
+            select.add(new Option(
+                `${student.name} (No. ${student.sno})`,
+                student.sno
+            ));
+        });
+
+        message.textContent = students.length
+            ? "Select the student you want to update."
+            : "No students available.";
+    } catch (error) {
+        message.textContent = error.message;
+    }
+}
+
+select.addEventListener("change", async () => {
+    const sno = select.value;
+    document.getElementById("sno").value = "";
+    document.getElementById("name").value = "";
+    document.getElementById("total").value = "";
+
+    if (!sno) return;
+
+    try {
+        const response = await fetch("/students/" + encodeURIComponent(sno));
+        const student = await response.json();
+        if (!response.ok) throw new Error(student.error || "Student not found.");
+
+        document.getElementById("sno").value = student.sno;
+        document.getElementById("name").value = student.name;
+        document.getElementById("total").value = student.total;
+        message.textContent = "Edit the details and save your changes.";
+    } catch (error) {
+        message.textContent = error.message;
+    }
+});
+
+form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const sno = select.value;
+    if (!sno) {
+        message.textContent = "Please select a student.";
+        return;
+    }
+
+    try {
+        const response = await fetch("/students/" + encodeURIComponent(sno), {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: document.getElementById("name").value,
+                total: document.getElementById("total").value
+            })
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Update failed.");
+
+        alert(result.message);
+        location.href = "index.html";
+    } catch (error) {
+        message.textContent = error.message;
+    }
+});
+
+loadStudents();
+</script>
+</body>
+</html>
+```

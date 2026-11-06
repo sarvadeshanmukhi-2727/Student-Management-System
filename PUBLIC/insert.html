@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert Student</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>INSERT STUDENT</h1>
+    <p>Add a new student to the database</p>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="list.html">List Students</a>
+    <a href="listOne.html">Find Student</a>
+    <a class="active" href="insert.html">Insert Student</a>
+    <a href="update.html">Update Student</a>
+    <a href="delete.html">Delete Student</a>
+</nav>
+
+<main class="container">
+    <h2>Student Registration</h2>
+    <img class="page-image"
+         src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=85"
+         alt="Writing student information">
+
+    <form id="insertForm">
+        <label for="sno">Student Number</label>
+        <input type="number" id="sno" min="1" required>
+
+        <label for="name">Student Name</label>
+        <input type="text" id="name" maxlength="100" required>
+
+        <label for="total">Total Marks</label>
+        <input type="number" id="total" min="0" max="99999.99" step="0.01" required>
+
+        <div class="actions">
+            <button type="submit">Save Student</button>
+            <button type="reset" class="btn-outline">Clear</button>
+            <button type="button" class="btn-yellow" onclick="location.href='index.html'">Home Page</button>
+            <button type="button" class="btn-outline" onclick="location.reload()">Refresh</button>
+        </div>
+        <p class="message" id="message" role="status"></p>
+    </form>
+</main>
+
+<footer>Student Management System | BTech Mini Project</footer>
+
+<script>
+document.getElementById("insertForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const message = document.getElementById("message");
+    message.textContent = "Saving student...";
+
+    try {
+        const response = await fetch("/students", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                sno: document.getElementById("sno").value,
+                name: document.getElementById("name").value,
+                total: document.getElementById("total").value
+            })
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Unable to save.");
+
+        alert(result.message);
+        location.href = "index.html";
+    } catch (error) {
+        message.textContent = error.message;
+    }
+});
+</script>
+</body>
+</html>
